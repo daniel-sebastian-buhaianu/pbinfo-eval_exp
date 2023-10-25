@@ -1,91 +1,64 @@
 #include <iostream>
 #include <cstring>
-#define LGMAX 51
-#define MAXCIF 20
+#define LGMAX 52
 using namespace std;
-bool cifra(char c);
-void numarCaSir(long long, char*);
-void calculeazaToateProdusele(char*);
-long long calculeazaExpresie(char*);
+bool cifra(char);
 int main()
 {
-	char s[LGMAX];
-	cin.getline(s, LGMAX);
-	calculeazaToateProdusele(s);
-	cout << calculeazaExpresie(s);
-	return 0;
-}
-long long calculeazaExpresie(char* s)
-{
-	int lg, i, j, st;
-	long long sum, nr;
-	char semn = '+';
-	lg = strlen(s);
-	for (sum = st = i = 0; i <= lg; i++)
+	char e[LGMAX], stvOp[LGMAX/2];
+	long long stvNr[LGMAX/2], nr, rez;
+	int vfOp, vfNr, i, lg;
+	cin.getline(e, LGMAX);
+	vfOp = vfNr = -1;
+	stvOp[++vfOp] = '+';
+	for (lg = strlen(e), nr = i = 0; i <= lg; i++)
 	{
-		if (!cifra(s[i]))
+		if (!cifra(e[i]))
 		{
-			for (nr = 0, j = st; j < i; j++)
+			if (stvOp[vfOp] == '*')
 			{
-				nr = nr*10 + (s[j]-'0');
-			}
-			if (semn == '+')
-			{
-				sum += nr;
+				stvNr[vfNr] *= nr;
+				vfOp--;
 			}
 			else
 			{
-				sum -= nr;
+				stvNr[++vfNr] = nr;
 			}
-			semn = s[i];
-			st = i+1;
+			nr = 0;
+			if (i < lg)
+			{
+				stvOp[++vfOp] = e[i];
+			}
 		}
-	}
-	return sum;
-}
-void calculeazaToateProdusele(char* s)
-{
-	long long x, prod;
-	char *p, *st, *dr, *q, nr[MAXCIF], aux[LGMAX];
-	while((p = strchr(s, '*')))
-	{
-		for (st = p-1; cifra(*(st-1)); st--);
-		for (dr = p+1; cifra(*(dr+1)); dr++);
-		for (x = 0, q = st; q < p; q++)
+		else
 		{
-			x = x*10 + (*q-'0');
+			nr = nr*10 + (e[i]-'0');
 		}
-		prod = x;
-		for (x = 0, q = p+1; q <= dr; q++)
+	}
+	rez = 0;
+	while (vfNr >= 0 && vfOp >= 0)
+	{
+		if(stvOp[vfOp] == '+')
 		{
-			x = x*10 + (*q-'0');
+			rez += stvNr[vfNr];
 		}
-		prod *= x;
-		numarCaSir(prod, nr);
-		strcpy(aux, dr+1);
-		*st = 0;
-		strcat(s, nr);
-		strcat(s, aux);
+		else if (stvOp[vfOp] == '-')
+		{
+			rez -= stvNr[vfNr];
+		}
+		else
+		{
+			cout << "Ceva nu a mers bine.\n";
+			return 1;
+		}
+		vfNr--;
+		vfOp--;
 	}
-}
-void numarCaSir(long long x, char* s)
-{
-	int lg, i, j;
-	char aux;
-	strcpy(s, "");
-	for (lg = 0; x; x /= 10)
-	{
-		s[lg++] = '0' + x%10;
-	}
-	s[lg] = 0;
-	for (i = 0, j = lg-1; i < j; i++, j--)
-	{
-		aux = s[i];
-		s[i] = s[j];
-		s[j] = aux;
-	}
+	cout << rez;
+	return 0;
 }
 bool cifra(char c)
 {
 	return c >= '0' && c <= '9';
 }
+// scor 100
